@@ -1,103 +1,88 @@
-![Credit_Card_Churn_Prediction](https://user-images.githubusercontent.com/105673165/187865009-bedea22b-2f52-4964-8979-29a293a22311.png)
+![NLP_-_Classificador_de_Texto (1)](https://user-images.githubusercontent.com/105673165/194183096-41a7c8ec-5f14-4298-a276-f7ebeb601c9f.png)
 
-## Producing a model to predict customer churn potential - a Classification problem!
-##### *My first machine learning project.
+## Desafio 1 Hand Talk - classificação de frases por setor
+Dada uma base de dados com frases classificadas em contexto/setores (atividades econômicas) específicos, seu objetivo, caso deseje aceitar, é criar um modelo de classificação para classificar frases nos setores anotados.
 
-  - dataset available at: https://www.kaggle.com/datasets/sakshigoyal7/credit-card-customers
+Logo abaixo temos a base de dados que você deverá usar para treinar seu modelo. Ela contém 521 frases classificadas entre os setores: finanças, educação, indústrias, varejo, orgão público.
 
-*Please, to check an ideal notebook, i recommend you to open the repository link in NBViewer (https://nbviewer.org/), since it's a heavy notebook with a Pandas Profiling report that doesn't appear in GitHub.
+Importante avisar que na base de dados existem frases classificadas com um único ou múltiplos setores. O caso de múltiplos setores ocorre devido a frase poder possuir um vocabulário cujo os termos pertencem a setores diferentes. Exemplo:
 
-### Problem description - extracted from the "dataset publisher" at the link above:
-  - A manager at the bank is disturbed with more and more customers leaving their credit card services. They would really 
-  appreciate if one could predict for them who is gonna get churned so they can proactively go to the customer to provide 
-  them better services and turn customers' decisions in the opposite direction
+"Curso de Técnico em Segurança do Trabalho por 32x R$ 161,03".
 
-  - Now, this dataset consists of 10,000 customers mentioning their age, salary, marital_status, credit card limit, credit 
-card category, etc. There are nearly 18 features.
+É uma frase que poderia ser classificada nos setores educação e finanças.
 
-  - We have only 16.07% of customers who have churned. Thus, it's a bit difficult to train our model to predict churning 
-customers.
-
-#### The libraries i utilized were:
-  - pandas
-  - numpy
-  - pandas_profiling
-  - pycaret
-  - sklearn
-  - seaborn
-  - matplotlib
+Logo, seu modelo deve tratar a possibilidade da frase possuir multiplas classificações!
 
 *---------------------------------------------------------------------------------------------------------------------------------*
 
-##
+Este projeto foi o primeiro que realizei dos desafios. Como sempre, trabalhar com strings pode realmente ser desafiador.
 
-#### In this project i'm gonna use the PyCaret (an "auto Machine Learning toolkit") librarie to model the problem solution.
+Comecei buscando algumas referências de projetos desenvolvidos na mesma linha, e encontrei algumas coisas interessantes.
 
-#### I'm also gonna use a more automated Exploratory Data Analysis tool - the Pandas Profiling.
+O primeiro passo era analisar / explorar os dados e entender o que eu tinha em mãos.
 
-![image](https://user-images.githubusercontent.com/105673165/188259093-ace9438e-13c0-4176-82ae-41cdde419b14.png)
+![image](https://user-images.githubusercontent.com/105673165/194183684-e7ea0f5c-a82b-4481-b589-cab5f5736151.png)
 
-### Pandas Profiling
-#### It gives us an overview of the dataframe; 
-![image](https://user-images.githubusercontent.com/105673165/188078259-071bc721-8ccf-4351-936a-11fd5922f628.png)
+Como pode-se observar, as frases não possuem nenhum padrão (ou seja, vão precisar de tratamento), e as tags são strings, então logo já penso em fazer um HotEncoding dessas tags. E é o que eu fiz.
+Também removi acentos, "letras sozinhas" e espaços múltiplos das frases.
 
-#### Variables/Features characteristics and some other details (like the existing correlations);
+![image](https://user-images.githubusercontent.com/105673165/194185116-629c7b51-f08e-4d09-ac6b-d7792a304ac6.png)
 
-![image](https://user-images.githubusercontent.com/105673165/188076977-9c40070b-0e63-429d-9afd-dacd871498de.png)
-![image](https://user-images.githubusercontent.com/105673165/188079353-377126d0-3e23-407d-a38d-1a696c4213d4.png)
-![image](https://user-images.githubusercontent.com/105673165/188079429-a6ccda09-21fb-4beb-a18f-bc3a9700be0a.png)
+Aqui considerei que o tratamento dos dados estava finalizado.
 
-#### It also gives us some alerts about the data (like missing or zero values).
+Outro passo necessário era vetorizar as frases para que pudéssemos utilizar no treino do modelo ("feature engineering"). Para isso, utilizei o TFIDF Vectorizer do sk-learn, que transformou as frases:
 
-![image](https://user-images.githubusercontent.com/105673165/188078725-983aa823-30db-4550-897d-57efba89e635.png)
-![image](https://user-images.githubusercontent.com/105673165/188078596-6bc5a51b-1506-44c8-8f9e-a388c4a0eee9.png)
-![image](https://user-images.githubusercontent.com/105673165/188078880-962e879c-4555-4f1a-a392-a8bcaa3edb6d.png)
-![image](https://user-images.githubusercontent.com/105673165/188078653-add19c87-0da0-47e9-8667-8ade986045f3.png)
+![image](https://user-images.githubusercontent.com/105673165/194186694-e9029d2a-2b4c-4c8f-a7f5-fa317e5f493e.png)
 
-##
+Então parti para a construção dos modelos.
 
-![image](https://user-images.githubusercontent.com/105673165/188081282-56258ed8-5fed-4dc6-ab59-16be701471f1.png)
-### *I'm gonna use specifically the classification tool!
+Em minha primeira tentativa, implementei uma rede neural mais "chique" com o TensorFlow, porém não consegui classificar efetivamente as frases. Então retornei para alguns modelos "mais simples", também por conta da baixa quantidade de dados que tinha.
 
-![image](https://user-images.githubusercontent.com/105673165/188081539-fd832d08-3d4b-46f1-b4da-85b267d16b30.png)
-#### PyCaret has an very easy setup step that allows you to define diverse criteria to prepare the data for modeling, and can automatically perform tasks that are imperative to some modeling cases, such as missing value imputation, categorical encoding, cross validation, fixing imbalanced target, etc.
+Utilizei alguns métodos (do **scikit-multilearn**) de transformação do problema de multi-label das frases:
+- **BinaryRelevance** - Transforma o problema de classificação multi-label (com N labels) em (N) problemas separados de classificação binária;
+- **Classifier Chains** - Para N labels ele treina N classificadores ordenados de acordo com a Bayesian Chain Rule;
+- **LabelPowerset** - Transforma um problema multi-label em um problema multi-classe com 1 classificador multi-classe treinado em todas as combinações de labels diferentes (consideradas as classes) encontradas nos dados.
 
-*In our case, we have imbalanced target, since there's less Attrited Customer data than Existing Customer...
-![image](https://user-images.githubusercontent.com/105673165/188078095-bd4d8bb9-2855-42e4-8e58-986a0d0a22d2.png)
+Para cada transformação, construí um modelo baseado em **Multinomial Naive Bayes**.
 
-### Environment Setup Example:
-![image](https://user-images.githubusercontent.com/105673165/188081738-96a359ff-cbeb-4019-830d-ada3a59c9939.png)
-![image](https://user-images.githubusercontent.com/105673165/188082226-9eaf29d8-db8b-4c85-b197-1bea916a5ad5.png)
+BinaryRelevance e Classifier Chains não performaram nada bem.
+#### BR:
 
-##
+![image](https://user-images.githubusercontent.com/105673165/194188921-cc2cc52a-1a67-4ae1-a449-1dd61a80b621.png)
 
-![image](https://user-images.githubusercontent.com/105673165/188081598-1fedb736-1ae6-427c-97c4-1db13e840263.png)
+#### CC:
 
-#### PyCaret train and test different models with different applied algorithms, and return the performance metrics.
+![image](https://user-images.githubusercontent.com/105673165/194188978-0804bf19-bcad-4f5d-9094-166aaa8377a7.png)
 
-![image](https://user-images.githubusercontent.com/105673165/188082341-c56981f3-a50f-460e-a273-353d100e3f18.png)
+Enquanto isso, o modelo utilizando **Label Powerset** trouxe resultados razoáveis, porém não classificava as frases em mais de uma label, NUNCA!
 
-### The best performing model was built - a LGBM model that applies an ensemble method with gradient boosting decision trees.
+![image](https://user-images.githubusercontent.com/105673165/194189086-1d5d95a4-9296-4644-a26a-2fa99818fac8.png)
 
-![image](https://user-images.githubusercontent.com/105673165/188260367-d446b5d1-97ed-4f28-bd95-76ac7be2ea11.png)
+Esse modelo (MultinomialNB + Label Powerset) foi o primeiro que considerei "semi-funcional". E por conta do tempo parti para a resolução dos outros desafios.
 
-#### We left a portion of our dataframe (5% - 506 "new customers") to utilize as "Unseen Data", to simulate the finalized model usage with "future new data".
+Posteriormente, retornei à este desafio com a ideia de mudar o algoritmo utilizado no modelo.
 
-![image](https://user-images.githubusercontent.com/105673165/188080928-f72f1041-7f93-4d5f-8d03-5bc23c29f698.png)
-![image](https://user-images.githubusercontent.com/105673165/188080978-ff41186c-46e2-4b3c-ae44-f68b89c539e4.png)
+Então desenvolvi novamente, 3 modelos (com as três mesmas transformações) porém utilizando o **Gaussian Naive Bayes**, e os resultados foram consideravelmente melhores para todos os modelos.
 
-#### The model performed pretty well in the simulation, with an recall of 0.9268.
-*Recall is the best metric in this case, because it indicates our accuracy concerning the True Positives and False Negatives (Potential Churn Customers).
+Os modelos com BR e CC melhoraram consideravelmente suas métricas, e o modelo com Label Powerset melhorou bem pouco sua acurácia, mas melhorou.
+Porém, agora todos os modelos estavam classificando algumas frases com mais de um label! Então agora o modelo com Label Powerset + Gaussian NB ficou um pouco melhor, mas 100% funcional.
 
-![image](https://user-images.githubusercontent.com/105673165/188260547-cebbdff7-f68a-4fa2-9aa3-2263998b9de5.png)
+![image](https://user-images.githubusercontent.com/105673165/194189487-0e4ff7ef-a823-4a35-b3d4-ce1b662531cb.png)
 
-*We correct predicted 76 customers with churn potential, from 82 in total (so, the model missed 6 other customers).
+Salvando o modelo, podemos carregá-lo para fazer previsões sem treiná-lo novamente.
 
-##
+![image](https://user-images.githubusercontent.com/105673165/194190118-7bc6c31e-10ac-451c-b70b-abcc64a0db27.png)
+
+Também, podemos construir uma pipeline de dados que inclui o vetorizador e o modelo, para uma utilização mais prática!
+
+
 
 ## Link References:
-PyCaret Github - Classification Tutorial:
-https://github.com/pycaret/pycaret/blob/master/tutorials/Binary%20Classification%20Tutorial%20Level%20Beginner%20-%20%20CLF101.ipynb
 
-Mario Caesar's Kaggle notebook - Credit Card approval prediction w/ PyCaret:
-https://www.kaggle.com/code/caesarmario/credit-card-approval-prediction-w-pycaret
+#### Multi Label Text Classification with Scikit-Learn - Susan Li:
+
+https://towardsdatascience.com/multi-label-text-classification-with-scikit-learn-30714b7819c5
+
+#### Multi-Label Classification with Python and Scikit-Multilearn - JCharis Jesse:
+
+https://github.com/Jcharis/Python-Machine-Learning/blob/master/Multi_Label_Text_Classification_with_Skmultilearn/Multi-Label%20Classification%20with%20Python%20and%20Scikit-Multilearn-.ipynb
